@@ -10,23 +10,28 @@ public class Looker : MonoBehaviour
     private bool looking = false;
     private float lookTimeout = 0.5f;
     private float lookTimer;
+    private bool dazed;
+    public float dazedTime = 0.5f;
+    private float dazedTimer = 0f;
 
-    // Use this for initialization
+    public Transform baseTransform;
+
     void Start()
     {
         startRot = transform.rotation;
     }
 
-    // Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
-        currentRot = Quaternion.LookRotation(lookTarget.position - transform.position);
+        currentRot = Quaternion.LookRotation((lookTarget != null) ? lookTarget.position - transform.position : baseTransform.forward * 5f);
 
-        if (Quaternion.Dot(startRot, currentRot) > -0.5f)
+        Quaternion baseRot = (baseTransform.rotation.y % 360 < 0) ? baseTransform.rotation * Quaternion.Euler(0, 360, 0) : baseTransform.rotation;
+
+        if (Quaternion.Dot(baseRot, currentRot) < 0.6f)
         {
             if (looking)
             {
-                currentRot = startRot;
+                currentRot = startRot; // to reset where the goose looks
                 transform.rotation = Quaternion.Slerp(transform.rotation, currentRot, Time.deltaTime * damping);
 
                 lookTimer += Time.deltaTime;
@@ -34,6 +39,7 @@ public class Looker : MonoBehaviour
                 if (lookTimer >= lookTimeout)
                 {
                     looking = false;
+                    lookTimer = 0;
                 }
             }
         }
@@ -41,20 +47,40 @@ public class Looker : MonoBehaviour
         {
             looking = true;
 
-            //if (Vector3.Distance(transform.position, lookTarget.position) > 1f)
-            //{
-                transform.LookAt(lookTarget, Vector3.up);
+            if (!dazed)
+            {
+                if (lookTarget != null)
+                {
+                    transform.LookAt(lookTarget, Vector3.up);
+                }
+            }
+        }
 
-            //}
-            //else
-            //{
-            //    transform.rotation = Quaternion.Slerp(transform.rotation, currentRot, Time.deltaTime * damping);
-            //}
+        if (dazed)
+        {
+            dazedTimer += Time.deltaTime;
+
+            if (dazedTimer >= dazedTime)
+            {
+                dazed = false;
+                dazedTimer = 0;
+            }
+        }
+    }
+
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.transform.tag != tag)
+        {
+            dazed = true;
         }
     }
 
     void OnDrawGizmos()
     {
-        Gizmos.DrawLine(transform.position, lookTarget.position);
+        if (lookTarget != null)
+        {
+            Gizmos.DrawLine(transform.position, lookTarget.position);
+        }
     }
 }

@@ -35,6 +35,8 @@ ModelImporter:
     100054: WingTip.l_end
     100056: WingTip.r
     100058: WingTip.r_end
+    100060: WingFore.l
+    100062: WingFore.r
     400000: Armature
     400002: BackSpine
     400004: Base
@@ -65,6 +67,8 @@ ModelImporter:
     400054: WingTip.l_end
     400056: WingTip.r
     400058: WingTip.r_end
+    400060: WingFore.l
+    400062: WingFore.r
     4300000: Cube
     4300002: Goose
     9500000: //RootNode
