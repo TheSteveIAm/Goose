@@ -8,11 +8,12 @@ public class Looker : MonoBehaviour
     public Transform lookTarget;
     private Quaternion startRot, currentRot;
     private bool looking = false;
-    private float lookTimeout = 0.5f;
+    private float lookTimeout = 0.1f;
     private float lookTimer;
     private bool dazed;
     public float dazedTime = 0.5f;
     private float dazedTimer = 0f;
+    public float sightDistance = 25f;
 
     public Transform baseTransform;
 
@@ -23,11 +24,34 @@ public class Looker : MonoBehaviour
 
     void Update()
     {
-        currentRot = Quaternion.LookRotation((lookTarget != null) ? lookTarget.position - transform.position : baseTransform.forward * 5f);
+        Vector3 lookPos = Vector3.zero;
 
-        Quaternion baseRot = (baseTransform.rotation.y % 360 < 0) ? baseTransform.rotation * Quaternion.Euler(0, 360, 0) : baseTransform.rotation;
+        if (lookTarget != null)
+        {
 
-        if (Quaternion.Dot(baseRot, currentRot) < 0.6f)
+            currentRot = Quaternion.LookRotation(lookTarget.position - transform.position);
+
+            lookPos = (lookTarget.position - transform.position).normalized;
+        }
+        else
+        {
+            currentRot = Quaternion.LookRotation(baseTransform.forward * 5f + new Vector3(0, 2, 0));
+        }
+
+
+        if (Vector3.Dot(baseTransform.forward, lookPos) > 0f)
+        {
+            looking = true;
+
+            if (!dazed)
+            {
+                if (lookTarget != null && Vector3.Distance(transform.position, lookTarget.position) < sightDistance)
+                {
+                    transform.LookAt(lookTarget, Vector3.up);
+                }
+            }
+        }
+        else
         {
             if (looking)
             {
@@ -40,18 +64,6 @@ public class Looker : MonoBehaviour
                 {
                     looking = false;
                     lookTimer = 0;
-                }
-            }
-        }
-        else
-        {
-            looking = true;
-
-            if (!dazed)
-            {
-                if (lookTarget != null)
-                {
-                    transform.LookAt(lookTarget, Vector3.up);
                 }
             }
         }
