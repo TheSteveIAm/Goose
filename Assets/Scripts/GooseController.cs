@@ -12,13 +12,20 @@ public class GooseController : MonoBehaviour
     [SerializeField]
     private float moveSpeed = 5f;
 
-    [SerializeField]
-    private float rotateSpeed = 150f;
+    //[SerializeField]
+    //private float rotateSpeed = 150f;
     // Use this for initialization
     void Start()
     {
         body = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
+
+        //if (Random.Range(0, 2) > 0)
+        //{
+        //    anim.SetTrigger("Reverse");
+        //}
+
+        
     }
 
     // Update is called once per frame
